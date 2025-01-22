@@ -196,7 +196,16 @@ router.get('/auth/callback', passport.authenticate('discord', { failureRedirect:
         secure: true, // Only send over HTTPS in production
         sameSite: 'none', // Only send the cookie for same-origin requests
     });
-    res.redirect(`${siteRoute}/user`);
+    res.redirect(`${siteRoute}/#/user`);
+});
+
+router.post('/logout', (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,  // Make sure it's consistent with how it was set
+        sameSite: 'None' // Make sure it's consistent with how it was set
+    });
+    res.status(200).json({ message: 'Logged out successfully' });
 });
 
 module.exports = router;
