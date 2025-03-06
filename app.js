@@ -16,10 +16,10 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { exec } = require('child_process');
 
-require("dotenv").config({ path: __dirname + '/.env' })
+// require("dotenv").config({ path: path.resolve(__dirname, '.env') });
 const router = express.Router();
 
-const siteRoute = process.env.FRONTEND_SITE // "https://scribble-website.netlify.app"
+const siteRoute = process.env.SCRIBBLE_FRONTEND_SITE // "https://scribble-website.netlify.app"
 
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser')
@@ -43,12 +43,12 @@ router.use(session({
         maxAge: 1000 * 60 * 60 * 24, // 1 day (optional)
     },
     store: MongoStore.create({
-        mongoUrl: "mongodb+srv://Home:ESzoeGjdxi8STzhx@cluster0.gagupiu.mongodb.net/?retryWrites=true&w=majority",
+        mongoUrl: process.env.SCRIBBLE_MONGOOSEDB,
         // ... other options if needed
     }),
 }));
 
-mongoose.connect("mongodb+srv://Home:ESzoeGjdxi8STzhx@cluster0.gagupiu.mongodb.net/?retryWrites=true&w=majority").then(() => {
+mongoose.connect(process.env.SCRIBBLE_MONGOOSEDB).then(() => {
     console.log("Connected to MongodDB")
 }).catch(err => {
     console.error("Error connecting to database")
@@ -61,8 +61,8 @@ router.use(passport.session());
 
 passport.use(new DiscordStrategy({
     clientID: "1020275006778921020", // Replace with your client ID
-    clientSecret: process.env.TOKEN, // Use a separate environment variable for client secret
-    callbackURL: `${process.env.BACKEND_API}/auth/callback`,
+    clientSecret: process.env.SCRIBBLE_BOT_TOKEN, // Use a separate environment variable for client secret
+    callbackURL: `${process.env.SCRIBBLE_BACKEND_API}/auth/callback`,
     scope: ['identify', 'email'], // Request user profile and email
 },
     (accessToken, refreshToken, profile, done) => {
@@ -185,7 +185,7 @@ router.get('/auth/callback', passport.authenticate('discord', { failureRedirect:
 
     const token = jwt.sign(
         { userID: req.user.userID, username: req.user.username },
-        // process.env.JWT_SECRET, // Secret key for signing
+        // process.env.SCRIBBLE_JWT_SECRET, // Secret key for signing
         "amogus",
         { expiresIn: '100d' } // Token expiration
     );
